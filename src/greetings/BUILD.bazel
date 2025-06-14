@@ -1,0 +1,17 @@
+load("@rules_rust//rust:defs.bzl", "rust_shared_library")
+load("@rules_dotnet//dotnet:defs.bzl", "csharp_library")
+
+rust_shared_library(
+    name = "greetings_rust",
+    srcs = ["lib.rs"],
+    edition = "2021",
+    visibility = ["//visibility:public"],
+)
+
+# Create a C# wrapper library for the Rust library
+csharp_library(
+    name = "greetings",
+    srcs = ["Greetings.cs"],  # You'll need to create this wrapper file
+    target_frameworks = ["net9.0"],
+    visibility = ["//src/hello:__pkg__"],
+)

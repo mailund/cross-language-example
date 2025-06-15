@@ -1,0 +1,4 @@
+build --incompatible_strict_action_env
+build --spawn_strategy=sandboxed
+build --action_env=PATH
+

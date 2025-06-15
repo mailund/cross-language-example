@@ -1,0 +1,36 @@
+module(name = "crosslang", version = "0.1.0")
+
+# Pull in the official BCR entries
+bazel_dep(name = "rules_rust", version = "0.61.0")
+bazel_dep(name = "rules_dotnet", version = "0.19.0")
+
+# Register the Rust toolchain extension
+rust_ext = use_extension(
+    "@rules_rust//rust/extensions:rust.bzl",
+    "rust_toolchain",
+)
+use_repo(rust_ext, "rust_toolchain")
+rust_ext.toolchain(
+    versions = ["1.77.1"],
+)
+
+# Register the .NET toolchain extension
+dotnet_ext = use_extension("@rules_dotnet//dotnet/extensions:dotnet.bzl", "dotnet")
+use_repo(dotnet_ext, "dotnet_toolchain")
+
+dotnet_ext.sdk(
+    name = "sdk",
+    version = "9.0",
+)
+
+dotnet_ext.toolchain(
+    dotnet_sdk = ":sdk",
+    frameworks = ["net9.0"],
+    platforms = {
+        "macos": "osx-arm64",
+        "linux": "linux-x64",
+        "windows": "win-x64",
+    },
+)
+
+dotnet_ext.register_toolchains(name = "dotnet")

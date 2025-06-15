@@ -1,0 +1,5 @@
+bazel-bin
+bazel-cross-language-example
+bazel-out
+bazel-testlogs
+MODULE.bazel.lock

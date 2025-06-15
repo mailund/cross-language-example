@@ -12,10 +12,18 @@ rust_ext = use_extension(
 use_repo(rust_ext, "rust_toolchain")
 rust_ext.toolchain(
     versions = ["1.77.1"],
+    platforms = {
+        "macos": "osx-arm64",
+        "linux": "linux-x64",
+        "windows": "win-x64",
+    },
 )
 
 # Register the .NET toolchain extension
-dotnet_ext = use_extension("@rules_dotnet//dotnet/extensions:dotnet.bzl", "dotnet")
+dotnet_ext = use_extension(
+    "@rules_dotnet//dotnet/extensions:dotnet.bzl",
+    "dotnet",
+)
 use_repo(dotnet_ext, "dotnet_toolchain")
 
 dotnet_ext.sdk(

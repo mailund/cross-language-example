@@ -11,7 +11,8 @@ rust_shared_library(
 # Create a C# wrapper library for the Rust library
 csharp_library(
     name = "greetings",
-    srcs = ["Greetings.cs"],  # You'll need to create this wrapper file
+    srcs = ["Greetings.cs"],
+    data = [":greetings_rust"],  # Include the Rust library as a runtime dependency
     target_frameworks = ["net9.0"],
     visibility = ["//src/hello:__pkg__"],
 )

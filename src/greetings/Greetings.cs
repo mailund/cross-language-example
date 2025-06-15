@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace Greetings
@@ -8,12 +9,28 @@ namespace Greetings
     /// </summary>
     public static class GreetingService
     {
-        // Import the native function from the Rust shared library
-        [DllImport("greetings_rust", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr get_greeting();
+        // Import the native functions from the Rust shared library with full paths
 
-        [DllImport("greetings_rust", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void free_greeting(IntPtr ptr);
+        // macOS
+        [DllImport("src/greetings/libgreetings_rust.dylib", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr get_greeting_macos();
+
+        [DllImport("src/greetings/libgreetings_rust.dylib", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void free_greeting_macos(IntPtr ptr);
+
+        // Linux
+        [DllImport("src/greetings/libgreetings_rust.so", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr get_greeting_linux();
+
+        [DllImport("src/greetings/libgreetings_rust.so", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void free_greeting_linux(IntPtr ptr);
+
+        // Windows
+        [DllImport("src/greetings/greetings_rust.dll", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr get_greeting_windows();
+
+        [DllImport("src/greetings/greetings_rust.dll", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void free_greeting_windows(IntPtr ptr);
 
         /// <summary>
         /// Gets a greeting message from the Rust library.
@@ -21,23 +38,66 @@ namespace Greetings
         /// <returns>A greeting string.</returns>
         public static string GetGreeting()
         {
-            // Get the pointer from the Rust function
-            IntPtr ptr = get_greeting();
-            
+            IntPtr ptr = IntPtr.Zero;
             try
             {
+                // Get the pointer from the appropriate platform-specific function
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    Console.WriteLine("Detected macOS, loading libgreetings_rust.dylib");
+                    ptr = get_greeting_macos();
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    Console.WriteLine("Detected Linux, loading libgreetings_rust.so");
+                    ptr = get_greeting_linux();
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    Console.WriteLine("Detected Windows, loading greetings_rust.dll");
+                    ptr = get_greeting_windows();
+                }
+                else
+                {
+                    throw new PlatformNotSupportedException("Unsupported platform");
+                }
+
                 // Convert the unmanaged string to a managed string
                 return Marshal.PtrToStringAnsi(ptr);
+            }
+            catch (DllNotFoundException ex)
+            {
+                Console.WriteLine($"Failed to load native library: {ex.Message}");
+                Console.WriteLine($"Current platform: {RuntimeInformation.OSDescription}");
+                Console.WriteLine($"Current architecture: {RuntimeInformation.OSArchitecture}");
+                Console.WriteLine($"Current directory: {Directory.GetCurrentDirectory()}");
+                return "Error: Native library not found";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+                return "Error: " + ex.Message;
             }
             finally
             {
                 // Free the memory allocated by the Rust code
                 if (ptr != IntPtr.Zero)
                 {
-                    free_greeting(ptr);
+                    try
+                    {
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                            free_greeting_macos(ptr);
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                            free_greeting_linux(ptr);
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                            free_greeting_windows(ptr);
+                    }
+                    catch (Exception)
+                    {
+                        // Ignore errors in cleanup
+                    }
                 }
             }
         }
     }
 }
-

@@ -5,32 +5,77 @@ using System.Runtime.InteropServices;
 namespace Greetings
 {
     /// <summary>
+    /// Interface for platform-specific Rust library interactions.
+    /// </summary>
+    internal interface IRustLibrary
+    {
+        IntPtr GetGreeting();
+        void FreeGreeting(IntPtr ptr);
+    }
+
+    /// <summary>
+    /// macOS implementation of the Rust library interface.
+    /// </summary>
+    internal class MacOSRustLibrary : IRustLibrary
+    {
+        [DllImport("src/greetings/libgreetings_rust.dylib", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr get_greeting();
+
+        [DllImport("src/greetings/libgreetings_rust.dylib", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void free_greeting(IntPtr ptr);
+
+        public IntPtr GetGreeting() => get_greeting();
+        public void FreeGreeting(IntPtr ptr) => free_greeting(ptr);
+    }
+
+    /// <summary>
+    /// Linux implementation of the Rust library interface.
+    /// </summary>
+    internal class LinuxRustLibrary : IRustLibrary
+    {
+        [DllImport("src/greetings/libgreetings_rust.so", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr get_greeting();
+
+        [DllImport("libgreetings_rust.so", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void free_greeting(IntPtr ptr);
+
+        public IntPtr GetGreeting() => get_greeting();
+        public void FreeGreeting(IntPtr ptr) => free_greeting(ptr);
+    }
+
+    /// <summary>
+    /// Windows implementation of the Rust library interface.
+    /// </summary>
+    internal class WindowsRustLibrary : IRustLibrary
+    {
+        [DllImport("src/greetings/greetings_rust.dll", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr get_greeting();
+
+        [DllImport("greetings_rust.dll", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void free_greeting(IntPtr ptr);
+
+        public IntPtr GetGreeting() => get_greeting();
+        public void FreeGreeting(IntPtr ptr) => free_greeting(ptr);
+    }
+
+    /// <summary>
     /// Provides access to greeting functionality implemented in Rust.
     /// </summary>
     public static class GreetingService
     {
-        // Import the native functions from the Rust shared library with full paths
+        private static readonly IRustLibrary _rustLibrary = CreateRustLibrary();
 
-        // macOS
-        [DllImport("src/greetings/libgreetings_rust.dylib", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr get_greeting_macos();
-
-        [DllImport("src/greetings/libgreetings_rust.dylib", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void free_greeting_macos(IntPtr ptr);
-
-        // Linux
-        [DllImport("src/greetings/libgreetings_rust.so", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr get_greeting_linux();
-
-        [DllImport("src/greetings/libgreetings_rust.so", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void free_greeting_linux(IntPtr ptr);
-
-        // Windows
-        [DllImport("src/greetings/greetings_rust.dll", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr get_greeting_windows();
-
-        [DllImport("src/greetings/greetings_rust.dll", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void free_greeting_windows(IntPtr ptr);
+        private static IRustLibrary CreateRustLibrary()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return new MacOSRustLibrary();
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return new LinuxRustLibrary();
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return new WindowsRustLibrary();
+            else
+                throw new PlatformNotSupportedException("Unsupported platform");
+        }
 
         /// <summary>
         /// Gets a greeting message from the Rust library.
@@ -41,28 +86,7 @@ namespace Greetings
             IntPtr ptr = IntPtr.Zero;
             try
             {
-                // Get the pointer from the appropriate platform-specific function
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    Console.WriteLine("Detected macOS, loading libgreetings_rust.dylib");
-                    ptr = get_greeting_macos();
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    Console.WriteLine("Detected Linux, loading libgreetings_rust.so");
-                    ptr = get_greeting_linux();
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    Console.WriteLine("Detected Windows, loading greetings_rust.dll");
-                    ptr = get_greeting_windows();
-                }
-                else
-                {
-                    throw new PlatformNotSupportedException("Unsupported platform");
-                }
-
-                // Convert the unmanaged string to a managed string
+                ptr = _rustLibrary.GetGreeting();
                 return Marshal.PtrToStringAnsi(ptr);
             }
             catch (DllNotFoundException ex)
@@ -80,17 +104,11 @@ namespace Greetings
             }
             finally
             {
-                // Free the memory allocated by the Rust code
                 if (ptr != IntPtr.Zero)
                 {
                     try
                     {
-                        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                            free_greeting_macos(ptr);
-                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                            free_greeting_linux(ptr);
-                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                            free_greeting_windows(ptr);
+                        _rustLibrary.FreeGreeting(ptr);
                     }
                     catch (Exception)
                     {

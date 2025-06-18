@@ -1,5 +1,5 @@
-load("@rules_rust//rust:defs.bzl", "rust_shared_library")
 load("@rules_dotnet//dotnet:defs.bzl", "csharp_library")
+load("@rules_rust//rust:defs.bzl", "rust_shared_library")
 
 rust_shared_library(
     name = "greetings_rust",
@@ -14,5 +14,5 @@ csharp_library(
     srcs = ["Greetings.cs"],
     data = [":greetings_rust"],  # Include the Rust library as a runtime dependency
     target_frameworks = ["net9.0"],
-    visibility = ["//src/hello:__pkg__"],
+    visibility = ["//hello:__pkg__"],
 )

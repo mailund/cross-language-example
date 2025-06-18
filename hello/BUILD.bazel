@@ -3,7 +3,7 @@ load("@rules_dotnet//dotnet:defs.bzl", "csharp_binary")
 csharp_binary(
     name = "hello",
     srcs = ["Program.cs"],
-    data = ["//greetings:greetings_rust"],  # Direct access to the Rust library
+    data = ["//greetings_wrapper"],  # Direct access to the Rust library
     target_frameworks = ["net9.0"],
-    deps = ["//greetings"],
+    deps = ["//greetings_wrapper"],
 )

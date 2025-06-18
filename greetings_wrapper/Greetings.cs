@@ -18,10 +18,10 @@ namespace Greetings
     /// </summary>
     internal class MacOSRustLibrary : IRustLibrary
     {
-        [DllImport("greetings/libgreetings_rust.dylib", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("greetings_wrapper/libgreetings_rust.dylib", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr get_greeting();
 
-        [DllImport("greetings/libgreetings_rust.dylib", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("greetings_wrapper/libgreetings_rust.dylib", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
         private static extern void free_greeting(IntPtr ptr);
 
         public IntPtr GetGreeting() => get_greeting();
@@ -33,10 +33,10 @@ namespace Greetings
     /// </summary>
     internal class LinuxRustLibrary : IRustLibrary
     {
-        [DllImport("greetings/libgreetings_rust.so", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("greetings_wrapper/libgreetings_rust.so", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr get_greeting();
 
-        [DllImport("libgreetings_rust.so", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("greetings_wrapper/libgreetings_rust.so", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
         private static extern void free_greeting(IntPtr ptr);
 
         public IntPtr GetGreeting() => get_greeting();
@@ -48,10 +48,10 @@ namespace Greetings
     /// </summary>
     internal class WindowsRustLibrary : IRustLibrary
     {
-        [DllImport("greetings/greetings_rust.dll", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("greetings_wrapper/greetings_rust.dll", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr get_greeting();
 
-        [DllImport("greetings_rust.dll", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("greetings_wrapper/greetings_rust.dll", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
         private static extern void free_greeting(IntPtr ptr);
 
         public IntPtr GetGreeting() => get_greeting();

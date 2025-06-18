@@ -1,6 +1,8 @@
+use greetings_lib::give_greeting;
+
 #[no_mangle]
 pub extern "C" fn get_greeting() -> *const std::os::raw::c_char {
-    std::ffi::CString::new("Hello from Rust!").unwrap().into_raw()
+    std::ffi::CString::new(give_greeting()).unwrap().into_raw()
 }
 
 /// Frees a C string previously created by Rust.

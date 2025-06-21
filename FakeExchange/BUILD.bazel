@@ -1,0 +1,18 @@
+load("@rules_dotnet//dotnet:defs.bzl", "csharp_library", "csharp_test")
+
+csharp_library(
+    name = "FakeExchange",
+    srcs = [
+        "Agent.cs",
+        "FakeExchange.cs",
+    ],
+    target_frameworks = ["net9.0"],
+    visibility = ["//visibility:public"],
+)
+
+csharp_test(
+    name = "FakeExchangeSmokeTest",
+    srcs = ["FakeExchangeSmokeTest.cs"],
+    target_frameworks = ["net9.0"],
+    deps = [":FakeExchange"],
+)

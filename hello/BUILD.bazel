@@ -1,9 +1,0 @@
-load("@rules_dotnet//dotnet:defs.bzl", "csharp_binary")
-
-csharp_binary(
-    name = "hello",
-    srcs = ["Program.cs"],
-    data = ["//greetings_wrapper"],  # Direct access to the Rust library
-    target_frameworks = ["net9.0"],
-    deps = ["//greetings_wrapper"],
-)

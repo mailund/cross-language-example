@@ -1,0 +1,9 @@
+load("@rules_dotnet//dotnet:defs.bzl", "csharp_library")
+
+csharp_library(
+    name = "FakeExchangeAPI",
+    srcs = ["FakeExchangeAPI.cs"],
+    target_frameworks = ["net9.0"],
+    visibility = ["//visibility:public"],
+    deps = ["//FakeExchange"],
+)

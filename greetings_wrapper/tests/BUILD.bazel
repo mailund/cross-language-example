@@ -1,0 +1,15 @@
+load("@rules_dotnet//dotnet:defs.bzl", "csharp_xunit_test")
+
+csharp_xunit_test(
+    name = "greetings_wrapper_tests",
+    srcs = ["GreetingsTests.cs"],
+    deps = [
+        "//greetings_wrapper:greetings_wrapper",
+        "//third_party/nuget:xunit_assert",
+        "//third_party/nuget:xunit_core",
+        "//third_party/nuget:xunit_execution",
+        "//third_party/nuget:shouldly",
+    ],
+    target_frameworks = ["net9.0"],
+    visibility = ["//visibility:public"],
+)

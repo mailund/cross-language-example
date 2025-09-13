@@ -1,44 +1,28 @@
-module(name = "crosslang", version = "0.1.0")
+module(
+    name = "crosslang",
+    version = "0.1.0",
+)
 
-# Pull in the official BCR entries
+bazel_dep(name = "rules_dotnet", version = "0.19.2")
 bazel_dep(name = "rules_rust", version = "0.61.0")
-bazel_dep(name = "rules_dotnet", version = "0.19.0")
 
-# Register the Rust toolchain extension
-rust_ext = use_extension(
-    "@rules_rust//rust/extensions:rust.bzl",
-    "rust_toolchain",
-)
-use_repo(rust_ext, "rust_toolchain")
-rust_ext.toolchain(
+# .NET toolchain
+dotnet = use_extension("@rules_dotnet//dotnet:extensions.bzl", "dotnet")
+dotnet.toolchain(dotnet_version = "9.0.100")  # or "8.0.200"
+use_repo(dotnet, "dotnet_toolchains")
+
+register_toolchains("@dotnet_toolchains//:all")
+
+# Rust toolchain (correct extension + attrs)
+rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
+rust.toolchain(
+    edition = "2021",
     versions = ["1.77.1"],
-    platforms = {
-        "macos": "osx-arm64",
-        "linux": "linux-x64",
-        "windows": "win-x64",
-    },
 )
+use_repo(rust, "rust_toolchains")
 
-# Register the .NET toolchain extension
-dotnet_ext = use_extension(
-    "@rules_dotnet//dotnet/extensions:dotnet.bzl",
-    "dotnet",
-)
-use_repo(dotnet_ext, "dotnet_toolchain")
+register_toolchains("@rust_toolchains//:all")
 
-dotnet_ext.sdk(
-    name = "sdk",
-    version = "9.0",
-)
-
-dotnet_ext.toolchain(
-    dotnet_sdk = ":sdk",
-    frameworks = ["net9.0"],
-    platforms = {
-        "macos": "osx-arm64",
-        "linux": "linux-x64",
-        "windows": "win-x64",
-    },
-)
-
-dotnet_ext.register_toolchains(name = "dotnet")
+# Paket2Bazel (generated extension)
+paket = use_extension("//third_party/nuget:paket.main_extension.bzl", "paket")
+use_repo(paket, "paket.main")

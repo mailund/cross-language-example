@@ -15,5 +15,5 @@ csharp_library(
     srcs = ["Greetings.cs"],
     data = [":greetings_rust"],
     target_frameworks = ["net9.0"],
-    visibility = ["//hello:__pkg__"],
+    visibility = ["//hello:__pkg__", "//greetings_wrapper:__subpackages__"],
 )

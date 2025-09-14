@@ -1,0 +1,40 @@
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
+# Container image for the hello application
+#
+# This builds a container image containing the hello application and all its
+# dependencies using Bazel's native OCI support via rules_oci.
+
+# Create a tar layer containing the application files
+pkg_tar(
+    name = "app_layer",
+    srcs = [
+        "//greetings_wrapper:greetings_rust",
+        "//hello:hello_publish",
+    ],
+    mode = "0755",
+    package_dir = "/app",
+)
+
+# Create the container image
+oci_image(
+    name = "hello_image",
+    base = "@dotnet_runtime_base_linux_arm64",
+    entrypoint = [
+        "dotnet",
+        "/app/hello.dll",
+    ],
+    tars = [":app_layer"],
+    workdir = "/app",
+)
+
+# Load the image into Docker (produces a tarball that can be loaded)
+oci_load(
+    name = "hello_docker_load",
+    image = ":hello_image",
+    repo_tags = [
+        "hello:latest",
+        "hello:bazel-built",
+    ],
+)

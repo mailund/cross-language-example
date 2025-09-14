@@ -3,4 +3,25 @@ package(default_visibility = ["//visibility:public"])
 # Make the file available as //tools:xunit_main.cs
 exports_files(["xunit_main.cs"])
 
+# Platform definitions for cross-compilation
+platform(
+    name = "linux_amd64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    visibility = ["//visibility:public"],
+)
 
+filegroup(
+    name = "xunit_main",
+    srcs = ["xunit_main.cs"],
+)
+
+platform(
+    name = "darwin_amd64",
+    constraint_values = [
+        "@platforms//os:macos",
+        "@platforms//cpu:x86_64",
+    ],
+)

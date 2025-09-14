@@ -1,9 +1,17 @@
-load("@rules_dotnet//dotnet:defs.bzl", "csharp_binary")
+load("@rules_dotnet//dotnet:defs.bzl", "csharp_binary", "publish_binary")
 
 csharp_binary(
     name = "hello",
     srcs = ["Program.cs"],
     data = ["//greetings_wrapper"],  # Direct access to the Rust library
     target_frameworks = ["net9.0"],
+    visibility = ["//docker:__pkg__"],
     deps = ["//greetings_wrapper"],
+)
+
+publish_binary(
+    name = "hello_publish",
+    binary = ":hello",
+    target_framework = "net9.0",
+    visibility = ["//docker:__pkg__"],
 )

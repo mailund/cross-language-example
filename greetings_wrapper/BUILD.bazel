@@ -6,8 +6,11 @@ rust_shared_library(
     name = "greetings_rust",
     srcs = ["c_interface.rs"],
     edition = "2021",
+    visibility = [
+        "//docker:__pkg__",
+        "//greetings_wrapper:__subpackages__",
+    ],
     deps = ["//greetings_lib"],
-    visibility = ["//greetings_wrapper:__subpackages__"],
 )
 
 # Create a C# wrapper library for the Rust library
@@ -16,5 +19,8 @@ csharp_library(
     srcs = ["Greetings.cs"],
     data = [":greetings_rust"],
     target_frameworks = ["net9.0"],
-    visibility = ["//hello:__pkg__", "//greetings_wrapper:__subpackages__"],
+    visibility = [
+        "//greetings_wrapper:__subpackages__",
+        "//hello:__pkg__",
+    ],
 )

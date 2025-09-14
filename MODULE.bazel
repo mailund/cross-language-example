@@ -1,3 +1,5 @@
+"""Cross-language example with Rust and C# components."""
+
 module(
     name = "crosslang",
     version = "0.1.0",
@@ -5,10 +7,14 @@ module(
 
 bazel_dep(name = "rules_dotnet", version = "0.19.2")
 bazel_dep(name = "rules_rust", version = "0.61.0")
+bazel_dep(name = "rules_oci", version = "2.2.6")
+bazel_dep(name = "rules_pkg", version = "1.1.0")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "aspect_bazel_lib", version = "2.19.4")
 
 # .NET toolchain
 dotnet = use_extension("@rules_dotnet//dotnet:extensions.bzl", "dotnet")
-dotnet.toolchain(dotnet_version = "9.0.100")  # or "8.0.200"
+dotnet.toolchain(dotnet_version = "9.0.100")
 use_repo(dotnet, "dotnet_toolchains")
 
 register_toolchains("@dotnet_toolchains//:all")
@@ -17,6 +23,9 @@ register_toolchains("@dotnet_toolchains//:all")
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
     edition = "2021",
+    extra_target_triples = [
+        "aarch64-unknown-linux-gnu",
+    ],
     versions = ["1.77.1"],
 )
 use_repo(rust, "rust_toolchains")
@@ -26,3 +35,25 @@ register_toolchains("@rust_toolchains//:all")
 # Paket2Bazel (generated extension)
 paket = use_extension("//third_party/nuget:paket.main_extension.bzl", "paket")
 use_repo(paket, "paket.main")
+
+# OCI (container) rules
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+
+# Pull base image for .NET applications
+oci.pull(
+    name = "dotnet_runtime_base",
+    digest = "sha256:5040af5025cf2e12b1c4eb04c033342c39fe654bbd9395d24cc2635ec196c7f4",
+    image = "mcr.microsoft.com/dotnet/runtime:9.0",
+    platforms = [
+        "linux/amd64",
+        "linux/arm/v7",
+        "linux/arm64",
+    ],
+)
+use_repo(
+    oci,
+    "dotnet_runtime_base",
+    "dotnet_runtime_base_linux_amd64",
+    "dotnet_runtime_base_linux_arm64",
+    "dotnet_runtime_base_linux_arm_v7",
+)

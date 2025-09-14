@@ -3,3 +3,8 @@ bazel-cross-language-example
 bazel-out
 bazel-testlogs
 MODULE.bazel.lock
+.config
+.idea
+.paket
+packages
+build

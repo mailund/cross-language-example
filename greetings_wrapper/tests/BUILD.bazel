@@ -1,15 +1,19 @@
-load("@rules_dotnet//dotnet:defs.bzl", "csharp_xunit_test")
+load("@rules_dotnet//dotnet:defs.bzl", "csharp_test")
 
-csharp_xunit_test(
+csharp_test(
     name = "greetings_wrapper_tests",
-    srcs = ["GreetingsTests.cs"],
+    srcs = ["GreetingsTests.cs", "//tools:xunit_main.cs"],
     deps = [
         "//greetings_wrapper:greetings_wrapper",
-        "//third_party/nuget:xunit_assert",
-        "//third_party/nuget:xunit_core",
-        "//third_party/nuget:xunit_execution",
-        "//third_party/nuget:shouldly",
+        "@paket.main//xunit.v3.core:xunit.v3.core",
+        "@paket.main//xunit.v3.assert:xunit.v3.assert",
+        "@paket.main//xunit.v3.common:xunit.v3.common",
+        "@paket.main//xunit.v3.extensibility.core:xunit.v3.extensibility.core",
+        "@paket.main//xunit.v3.runner.inproc.console:xunit.v3.runner.inproc.console",
+        "@paket.main//xunit.v3:xunit.v3",
+        "@paket.main//shouldly:shouldly",
     ],
+    data = ["//greetings_wrapper:greetings_rust"],
     target_frameworks = ["net9.0"],
     visibility = ["//visibility:public"],
 )

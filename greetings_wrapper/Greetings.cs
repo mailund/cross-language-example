@@ -98,10 +98,10 @@ internal class MacOSRustLibrary : IRustLibrary
 /// </summary>
 internal class LinuxRustLibrary : IRustLibrary
 {
-    [DllImport("greetings_wrapper/libgreetings_rust.so", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("libgreetings_rust.so", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
     private static extern IntPtr get_greeting();
 
-    [DllImport("greetings_wrapper/libgreetings_rust.so", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("libgreetings_rust.so", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
     private static extern void free_greeting(IntPtr ptr);
 
     public IntPtr GetGreeting() => get_greeting();
@@ -113,10 +113,10 @@ internal class LinuxRustLibrary : IRustLibrary
 /// </summary>
 internal class WindowsRustLibrary : IRustLibrary
 {
-    [DllImport("greetings_wrapper/greetings_rust.dll", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("greetings_rust.dll", EntryPoint = "get_greeting", CallingConvention = CallingConvention.Cdecl)]
     private static extern IntPtr get_greeting();
 
-    [DllImport("greetings_wrapper/greetings_rust.dll", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("greetings_rust.dll", EntryPoint = "free_greeting", CallingConvention = CallingConvention.Cdecl)]
     private static extern void free_greeting(IntPtr ptr);
 
     public IntPtr GetGreeting() => get_greeting();

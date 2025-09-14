@@ -1,7 +1,1 @@
 package(default_visibility = ["//visibility:public"])
-
-# These targets come from @paket.main (no underscores, no versions, no extra //)
-alias(name = "xunit_assert",    actual = "@paket.main//xunit.assert:xunit.assert")
-alias(name = "xunit_core",      actual = "@paket.main//xunit.extensibility.core:xunit.extensibility.core")
-alias(name = "xunit_execution", actual = "@paket.main//xunit.extensibility.execution:xunit.extensibility.execution")
-alias(name = "shouldly",        actual = "@paket.main//shouldly:shouldly")  # If this fails, try capital S: @paket.main//Shouldly:Shouldly

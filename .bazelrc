@@ -2,3 +2,4 @@ build --incompatible_strict_action_env
 build --spawn_strategy=sandboxed
 build --action_env=PATH
 
+build --@rules_dotnet//dotnet:target_framework=net9.0

@@ -5,7 +5,7 @@ rust_library(
     name = "greetings_lib",
     srcs = ["lib.rs"],
     edition = "2021",
-    visibility = ["//greetings_wrapper:__pkg__"],
+    visibility = ["//greetings_wrapper:__subpackages__"],
 )
 
 # Test the pure Rust library
